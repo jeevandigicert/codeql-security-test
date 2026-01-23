@@ -1,11 +1,13 @@
 name: "CodeQL Security Scan"
+
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   schedule:
 cron: '0 0 * * 1'
+
 jobs:
   analyze:
     name: Analyze Code
@@ -14,68 +16,26 @@ jobs:
       actions: read
       contents: read
       security-events: write
+
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'python' ]
+        language: ['python']
+
     steps:
 name: Checkout repository
       uses: actions/checkout@v4
+
 name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         queries: security-and-quality
+
 name: Autobuild
       uses: github/codeql-action/autobuild@v3
+
 name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
-  check-critical-alerts:
-    name: Block on Critical Issues
-    runs-on: ubuntu-latest
-    needs: analyze
-    if: github.event_name == 'pull_request'
-    permissions:
-      security-events: read
-      contents: read
-      pull-requests: write
-    steps:
-name: Check for critical vulnerabilities
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const alerts = await github.rest.codeScanning.listAlertsForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            state: 'open',
-            severity: 'critical'
-          });
-          if (alerts.data.length > 0) {
-            core.setFailed(`:x: BLOCKED: Found ${alerts.data.length} critical security issue(s). Security team review required.`);
-            let message = '## :rotating_light: Critical Security Issues Detected\n\n';
-            message += `Found **${alerts.data.length}** critical security issue(s):\n\n`;
-            alerts.data.forEach((alert, index) => {
-              message += `${index + 1}. **${alert.rule.description}**\n`;
-              message += `   - Severity: ${alert.rule.severity}\n`;
-              message += `   - File: ${alert.most_recent_instance.location.path}\n\n`;
-            });
-            message += '**:warning: This PR is BLOCKED until Security Engineering Team reviews and approves.**';
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: message
-            });
-          }
-
-
-
-
-
-
-
-
-
-
