@@ -45,6 +45,13 @@ def ping():
     result = subprocess.call('ping -c 1 ' + host, shell=True)
     return f"Result: {result}"
 
+# CRITICAL: Another test vulnerability
+@app.route('/unsafe')
+def unsafe_operation():
+    user_input = request.args.get('data')
+    exec(user_input)  # Critical: Code execution
+    return "Done"
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
 
