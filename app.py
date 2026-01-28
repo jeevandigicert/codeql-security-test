@@ -1,6 +1,7 @@
 import os
 import subprocess
 from flask import Flask, request
+import json
 
 app = Flask(__name__)
 
@@ -44,6 +45,16 @@ def ping():
     host = request.args.get('host')
     result = subprocess.call('ping -c 1 ' + host, shell=True)
     return f"Result: {result}"
+
+# CRITICAL: Insecure deserialization (RCE)
+import pickle
+import base64
+
+@app.route("/deserialize")
+def deserialize():
+    data = request.args.get("data")
+    obj = json.loads(base64.b64decode(data))  # Use safe JSON deserialization instead of pickle
+    return "Done"
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
