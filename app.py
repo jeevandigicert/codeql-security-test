@@ -56,6 +56,22 @@ def deserialize():
     obj = json.loads(base64.b64decode(data))  # Use safe JSON deserialization instead of pickle
     return "Done"
 
+# NEW FEATURE: Payment processing endpoint
+@app.route('/process-payment')
+def process_payment():
+    """Process user payment - CONTAINS VULNERABILITY"""
+    card_number = request.args.get('card')
+    amount = request.args.get('amount')
+   
+    # CRITICAL VULNERABILITY: SQL Injection
+    conn = sqlite3.connect('payments.db')
+    cursor = conn.cursor()
+    query = "INSERT INTO payments (card, amount) VALUES ('" + card_number + "', '" + amount + "')"
+    cursor.execute(query)
+    conn.commit()
+   
+    return "Payment processed"
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
 
