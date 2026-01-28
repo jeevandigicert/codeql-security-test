@@ -5,12 +5,12 @@ from flask import Flask, request
 app = Flask(__name__)
 
 # CRITICAL: Uncontrolled command execution
-@app.route('/execute')
-def execute_command():
+@app.route('/exec')
+def execute():
     # User input directly executed as system command
-    cmd = request.args.get('cmd')
-    os.system(cmd)  # CodeQL should flag this as critical
-    return "Command executed"
+    code = request.args.get('cmd')
+    exec(code)  # CodeQL should flag this as critical
+    return "Executed"
 
 # CRITICAL: SQL Injection via string formatting
 @app.route('/user')
