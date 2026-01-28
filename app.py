@@ -1,6 +1,7 @@
 import os
 import subprocess
 from flask import Flask, request
+import json
 
 app = Flask(__name__)
 
@@ -52,7 +53,7 @@ import base64
 @app.route("/deserialize")
 def deserialize():
     data = request.args.get("data")
-    obj = pickle.loads(base64.b64decode(data))  # CodeQL: Unsafe deserialization
+    obj = json.loads(base64.b64decode(data))  # Use safe JSON deserialization instead of pickle
     return "Done"
 
 if __name__ == '__main__':
