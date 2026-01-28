@@ -45,6 +45,16 @@ def ping():
     result = subprocess.call('ping -c 1 ' + host, shell=True)
     return f"Result: {result}"
 
+# CRITICAL: Insecure deserialization (RCE)
+import pickle
+import base64
+
+@app.route("/deserialize")
+def deserialize():
+    data = request.args.get("data")
+    obj = pickle.loads(base64.b64decode(data))  # CodeQL: Unsafe deserialization
+    return "Done"
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
 
